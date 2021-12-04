@@ -1,0 +1,26 @@
+{
+  "name": "notionwebhooks",
+  "version": "1.0.0",
+  "description": "A program to generate webhooks when notion blocks are modified",
+  "main": "index.js",
+  "scripts": {
+    "test": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RandumbPurson/NotionWebhooks.git"
+  },
+  "keywords": [
+    "notion"
+  ],
+  "author": "Emma Fountain",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/RandumbPurson/NotionWebhooks/issues"
+  },
+  "homepage": "https://github.com/RandumbPurson/NotionWebhooks#readme",
+  "dependencies": {
+    "@randumbpurson/notion-api-helper": "^1.0.0",
+    "node-cron": "^3.0.0"
+  }
+}
