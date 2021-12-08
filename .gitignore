@@ -1,3 +1,7 @@
+# NotionWebhooks Local Files
+integration.json
+block_states.json
+
 # Logs
 logs
 *.log
