@@ -1,6 +1,7 @@
 const fs = require('fs');
 const cron = require("node-cron");
 const notion = require("@randumbpurson/notion-api-helper");
+const axios = require("axios");
 
 
 class monitor {
@@ -58,10 +59,15 @@ class monitor {
             if (err) {console.log('Error Saving Block State', err);}
         })
     }
+    generate_webhooks(){
 
+    }
     start_monitor(){
         this.monitored_blocks = JSON.parse(fs.readFileSync('block_states.json'));
-        cron.schedule(`${this.config.check_interval} * * * *`, this.check_blocks());
+        cron.schedule(`${this.config.check_interval} * * * *`, {
+		let modified = this.check_blocks());
+	    	
+	}
         cron.schedule(`* ${this.config.save_interval} * * *`, this.save_block_states());
     }
 }
