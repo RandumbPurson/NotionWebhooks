@@ -2,6 +2,9 @@
 integration.json
 block_states.json
 
+# Leftover SWP files
+*.swp
+
 # Logs
 logs
 *.log

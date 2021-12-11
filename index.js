@@ -13,6 +13,7 @@ class monitor {
             save_interval: save_interval
 
         }
+        this.tasks = {};
         fs.readFile('integration.json', (err, integration_raw) => {
             if (err) {
                 console.log("Error reading integration.json", err);
@@ -21,7 +22,7 @@ class monitor {
 
             try {
                 let integration_data = JSON.parse(integration_raw);
-                this.integration = notion.integration(
+                this.integration = new notion.Integration(
                     integration_data.secret, 
                     integration_data.version | "2021-08-16"
                     )
@@ -32,11 +33,11 @@ class monitor {
     }
 
     add_block(block_type, block_id){
-        monitored_blocks.push({
+        this.monitored_blocks[this.monitored_blocks.length] = {
             "object": block_type,
             "id": block_id,
             "last_edited_time": null
-        });   
+        };   
     }
 
     check_blocks(){
@@ -59,15 +60,37 @@ class monitor {
             if (err) {console.log('Error Saving Block State', err);}
         })
     }
-    generate_webhooks(){
-
+    generate_webhooks(endpoint, modified){
+        axios.post(endpoint, {
+            modified: modified
+        }, {
+            'Content-Type': 'application/json'
+        }).catch((err) => {
+            console.log("Error generating webhooks, make sure the provided endpoint is valid")
+        });
     }
-    start_monitor(){
-        this.monitored_blocks = JSON.parse(fs.readFileSync('block_states.json'));
-        cron.schedule(`${this.config.check_interval} * * * *`, {
-		let modified = this.check_blocks());
+
+    start(endpoint){
+        try {
+            this.monitored_blocks = JSON.parse(fs.readFileSync('block_states.json') || {});
+        }catch{
+            this.monitored_blocks = {}
+        }
+        this.tasks['check_blocks'] = cron.schedule(`${this.config.check_interval} * * * *`, () => {
+		    let modified = this.check_blocks();
+            this.generate_webhooks(endpoint, modified);
 	    	
-	}
-        cron.schedule(`* ${this.config.save_interval} * * *`, this.save_block_states());
+	    });
+        this.tasks['save_block_states'] = cron.schedule(`* ${this.config.save_interval} * * *`, () => {
+            this.save_block_states();
+        });
+    }
+
+    stop(){
+        for (task in this.tasks){
+            task.stop();
+        }
     }
 }
+
+module.exports = {monitor};
