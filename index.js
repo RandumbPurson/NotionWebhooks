@@ -14,22 +14,26 @@ class monitor {
 
         }
         this.tasks = {};
-        fs.readFile('integration.json', (err, integration_raw) => {
-            if (err) {
-                console.log("Error reading integration.json", err);
-                return;
-            }
+        try {
+            fs.readFile('integration.json', (err, integration_raw) => {
+                if (err) {
+                    console.log("Error reading integration.json", err);
+                    return;
+                }
 
-            try {
-                let integration_data = JSON.parse(integration_raw);
-                this.integration = new notion.Integration(
-                    integration_data.secret, 
-                    integration_data.version | "2021-08-16"
-                    )
-            } catch (err) {
-                console.log("Error parsing JSON string", err);
-            }
-        })
+                try {
+                    let integration_data = JSON.parse(integration_raw);
+                    this.integration = new notion.Integration(
+                        integration_data.secret, 
+                        integration_data.version | "2021-08-16"
+                        )
+                } catch (err) {
+                    console.log("Error parsing JSON string:\n", err);
+                }
+            })
+        } catch(err) {
+            console.log("Couldn't read 'integration.json' file", err);
+        }
     }
 
     add_block(block_type, block_id){
