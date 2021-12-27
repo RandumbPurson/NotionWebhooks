@@ -1,12 +1,11 @@
 const fs = require('fs');
-const cron = require("node-cron");
 const notion = require("@randumbpurson/notion-api-helper");
 const axios = require("axios");
 
 
 class monitor {
 
-    constructor(initial_blocks = [], check_interval = 10, save_interval = 5){
+    constructor(initial_blocks = [], check_interval = 1, save_interval = 5){
         this.monitored_blocks = initial_blocks;
         this.config = {
             check_interval: check_interval,
@@ -46,6 +45,7 @@ class monitor {
 
     check_blocks(){
         let modified = [];
+        
         for (block in this.monitored_blocks){
             // get last edited time from Notion API
             let last_modified = this.integration.get_element(block["object"], block["id"])["last_edited_time"];
@@ -65,6 +65,7 @@ class monitor {
         })
     }
     generate_webhooks(endpoint, modified){
+        console.log(`Changes detected to ${modified}, sending webhooks to ${endpoint}`);
         axios.post(endpoint, {
             modified: modified
         }, {
@@ -76,18 +77,20 @@ class monitor {
 
     start(endpoint){
         try {
-            this.monitored_blocks = JSON.parse(fs.readFileSync('block_states.json') || {});
+            this.monitored_blocks = JSON.parse(fs.readFileSync('block_states.json'));
         }catch{
-            this.monitored_blocks = {}
+            this.monitored_blocks = {};
         }
-        this.tasks['check_blocks'] = cron.schedule(`${this.config.check_interval} * * * *`, () => {
+
+        this.tasks['check_blocks'] = setInterval( () => {
 		    let modified = this.check_blocks();
             this.generate_webhooks(endpoint, modified);
 	    	
-	    });
-        this.tasks['save_block_states'] = cron.schedule(`* ${this.config.save_interval} * * *`, () => {
+	    }, this.config.check_interval);
+
+        this.tasks['save_block_states'] = setInterval( () => {
             this.save_block_states();
-        });
+        }, this.config.save_interval);
     }
 
     stop(){
