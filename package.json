@@ -20,8 +20,7 @@
   },
   "homepage": "https://github.com/RandumbPurson/NotionWebhooks#readme",
   "dependencies": {
-    "@randumbpurson/notion-api-helper": "^1.0.0",
-    "axios": "^0.24.0",
-    "node-cron": "^3.0.0"
+    "@randumbpurson/notion-api-helper": "^1.1.0",
+    "axios": "^0.24.0"
   }
 }
