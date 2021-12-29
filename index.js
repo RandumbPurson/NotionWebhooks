@@ -5,7 +5,7 @@ const axios = require("axios");
 
 class monitor {
 
-    constructor(initial_blocks = [], check_interval = 1, save_interval = 5){
+    constructor(initial_blocks = new Array(), check_interval = 10, save_interval = 5){
         this.monitored_blocks = initial_blocks;
         this.config = {
             check_interval: check_interval,
@@ -86,11 +86,11 @@ class monitor {
 		    let modified = this.check_blocks();
             this.generate_webhooks(endpoint, modified);
 	    	
-	    }, this.config.check_interval);
+	    }, this.config.check_interval * 1000);
 
         this.tasks['save_block_states'] = setInterval( () => {
             this.save_block_states();
-        }, this.config.save_interval);
+        }, this.config.save_interval * 60000);
     }
 
     stop(){
