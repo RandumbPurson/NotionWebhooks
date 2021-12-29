@@ -36,19 +36,21 @@ class monitor {
     }
 
     add_block(block_type, block_id){
-        this.monitored_blocks[this.monitored_blocks.length] = {
+        this.monitored_blocks.push({
             "object": block_type,
             "id": block_id,
             "last_edited_time": null
-        };   
+        });   
     }
 
     check_blocks(){
         let modified = [];
-        
+        let block;
+
         for (block in this.monitored_blocks){
             // get last edited time from Notion API
             let last_modified = this.integration.get_element(block["object"], block["id"])["last_edited_time"];
+
             if (block["last_edited_time"] == null){block["last_edited_time"] = last_modified;}
             // if updated date > cached date, push to output array and cache new date
             if (Date.parse(last_modified) > date.parse(block["last_edited_time"])){
@@ -79,7 +81,7 @@ class monitor {
         try {
             this.monitored_blocks = JSON.parse(fs.readFileSync('block_states.json'));
         }catch{
-            this.monitored_blocks = {};
+            this.monitored_blocks = [];
         }
 
         this.tasks['check_blocks'] = setInterval( () => {
